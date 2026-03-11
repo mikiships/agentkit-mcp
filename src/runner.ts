@@ -1,4 +1,6 @@
 import { spawn } from "child_process";
+import * as path from "path";
+import * as os from "os";
 
 export interface RunResult {
   stdout: string;
@@ -23,8 +25,15 @@ export function runCLI(
       cwd: options.cwd,
       env: {
         ...process.env,
-        // Ensure pipx/local bin is on PATH
-        PATH: `/Users/mordecai/.local/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:${process.env.PATH ?? ""}`,
+        // Ensure pipx/local bin is on PATH across different user environments
+        PATH: [
+          path.join(os.homedir(), ".local/bin"),
+          "/opt/homebrew/bin",
+          "/usr/local/bin",
+          "/usr/bin",
+          "/bin",
+          process.env.PATH ?? "",
+        ].join(":"),
       },
       stdio: ["pipe", "pipe", "pipe"],
     });
